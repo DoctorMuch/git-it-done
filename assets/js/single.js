@@ -1,4 +1,5 @@
 let issueContainerEl = document.getElementById("issues-container");
+let limitWarningEl = document.getElementById("limit-warning");
 
 let getRepoIssues = function(repo){
   let apiUrl = `https://api.github.com/repos/${repo}/issues?direction=asc`;
@@ -6,6 +7,10 @@ let getRepoIssues = function(repo){
     if(response.ok){
       response.json().then(function(data){
         displayIssues(data);
+
+        if(response.headers.get("Link")) {
+          displayWarning(repo);
+        }
       });
     }
     else {
@@ -40,7 +45,17 @@ let displayIssues = function(issues){
     }
     issueContainerEl.appendChild(issueEl);
   }
-  
-}
+};
 
-getRepoIssues("doctormuch/run-buddy");
+let displayWarning = function(repo){
+  limitWarningEl.textContent = "To see more than 30 issues, visit ";
+  
+  let linkEl = document.createElement("a");
+  linkEl.textContent = "See More Issues on GitHub.com";
+  linkEl.setAttribute("href", "https://github.com/" + repo + "/issues");
+  linkEl.setAttribute("target", "_blank");
+
+  limitWarningEl.appendChild(linkEl);
+};
+
+getRepoIssues("facebook/react");
